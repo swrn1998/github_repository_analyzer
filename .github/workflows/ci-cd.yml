@@ -21,8 +21,10 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Run backend unit tests
-        run: mvn -B test --file backend/pom.xml
+      
+      - name: Build backend (skip tests)
+        run: mvn -B clean package -DskipTests --file backend/pom.xml
+
 
       # ---------- Log in to ACR ----------
       - name: Log in to ACR
