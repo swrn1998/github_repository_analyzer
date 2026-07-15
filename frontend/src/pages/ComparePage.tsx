@@ -16,7 +16,29 @@ const ComparePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [ownerA, setOwnerA] = useState('');
+  const [repoNameA, setRepoNameA] = useState('');
   const [ownerB, setOwnerB] = useState('');
+  const [repoNameB, setRepoNameB] = useState('');
+
+  const handleRepoAInput = (owner: string, repo: string) => {
+    setOwnerA(owner);
+    setRepoNameA(repo);
+    
+    // Only trigger comparison if both repos are set
+    if (ownerB && repoNameB) {
+      handleCompare(owner, repo, ownerB, repoNameB);
+    }
+  };
+
+  const handleRepoBInput = (owner: string, repo: string) => {
+    setOwnerB(owner);
+    setRepoNameB(repo);
+    
+    // Only trigger comparison if both repos are set
+    if (ownerA && repoNameA) {
+      handleCompare(ownerA, repoNameA, owner, repo);
+    }
+  };
 
   const handleCompare = async (oA: string, rA: string, oB: string, rB: string) => {
     setIsLoading(true);
@@ -32,8 +54,6 @@ const ComparePage: React.FC = () => {
       ]);
       setRepoA(resultA);
       setRepoB(resultB);
-      setOwnerA(oA);
-      setOwnerB(oB);
     } catch (err) {
       const apiErr = err as ApiError;
       setError(apiErr.message || 'Comparison failed');
@@ -64,7 +84,7 @@ const ComparePage: React.FC = () => {
             Repository A
           </label>
           <SearchBar
-            onAnalyze={(o, r) => handleCompare(o, r, ownerB || 'vuejs', 'vue')}
+            onAnalyze={handleRepoAInput}
             isLoading={isLoading}
             placeholder="e.g. facebook/react"
           />
@@ -74,7 +94,7 @@ const ComparePage: React.FC = () => {
             Repository B
           </label>
           <SearchBar
-            onAnalyze={(o, r) => handleCompare(ownerA || 'facebook', 'react', o, r)}
+            onAnalyze={handleRepoBInput}
             isLoading={isLoading}
             placeholder="e.g. vuejs/vue"
           />
@@ -84,6 +104,13 @@ const ComparePage: React.FC = () => {
       {error && (
         <div role="alert" style={{ color: '#dc2626', padding: '12px', backgroundColor: '#fef2f2', borderRadius: '8px', marginBottom: '20px' }}>
           {error}
+        </div>
+      )}
+
+      {/* Info message when only one repo is entered */}
+      {((ownerA && repoNameA && !ownerB) || (ownerB && repoNameB && !ownerA)) && !isLoading && (
+        <div style={{ color: '#1e40af', padding: '12px', backgroundColor: '#dbeafe', borderRadius: '8px', marginBottom: '20px' }}>
+          ℹ️ Please enter the second repository to start comparison
         </div>
       )}
 
