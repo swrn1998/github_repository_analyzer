@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: github-repository-analyzer
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json
+  error:
+    include-message: never       # Don't leak internal errors to clients
+    include-stacktrace: never
+
+# ── GitHub API ───────────────────────────────────────────────────────────────
+github:
+  api:
+    base-url: https://api.github.com
+    token: ${GITHUB_API_TOKEN:}               # Set via env var; empty = unauthenticated (60 req/hr)
+    connect-timeout-ms: ${GITHUB_API_CONNECT_TIMEOUT_MS:3000}
+    read-timeout-ms: ${GITHUB_API_READ_TIMEOUT_MS:10000}
+    max-retries: 2
+    retry-delay-ms: 500
+
+# ── Cache ────────────────────────────────────────────────────────────────────
+cache:
+  ttl-minutes: ${CACHE_TTL_MINUTES:10}
+  stale-ttl-minutes: ${CACHE_STALE_TTL_MINUTES:60}
+  max-entries: ${CACHE_MAX_ENTRIES:500}
+  eviction-scheduler-minutes: 5
+
+# ── Trends ───────────────────────────────────────────────────────────────────
+trends:
+  max-snapshots-per-repo: ${TRENDS_MAX_SNAPSHOTS:30}
+
+# ── Actuator ─────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: GitHub Repository Analyzer
+    version: 1.0.0
+    description: Analyzes GitHub repositories with health scoring and alerts
+
+# ── SpringDoc / Swagger ───────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  info:
+    title: GitHub Repository Analyzer API
+    version: 1.0.0
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.githubanalyzer: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

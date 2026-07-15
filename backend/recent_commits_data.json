@@ -1,0 +1,412 @@
+[
+    {
+        "sha": "5123b063a7b3cd5c42ea2be2ccebe4e68d8b12e3",
+        "node_id": "C_kwDOAJy2KtoAKDUxMjNiMDYzYTdiM2NkNWM0MmVhMmJlMmNjZWJlNGU2OGQ4YjEyZTM",
+        "commit": {
+            "author": {
+                "name": "Sophie Alpert",
+                "email": "git@sophiebits.com",
+                "date": "2026-07-08T16:59:07Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-07-08T16:59:07Z"
+            },
+            "message": "[Fast Refresh] Find and remount wrapper edits behind lazy() (#36965)\n\nTwo bugs:\n\n- Type changes to a lazy's inner component (e.g., adding a `memo`\n  comparison function) were missed by the refresh scan.\n- If a SimpleMemoComponent needs to be remounted, previously\n  resolveRemountTypeForHotReloading would return the inner function\n  and we would incorrectly recreate the fiber as a FunctionComponent.\n  Instead, we can just use elementType consistently now that the\n  beginWork functions consistently call resolveFamily on the wrapped\n  components.",
+            "tree": {
+                "sha": "aeb7276356422147836dd917eb45b5b1bf46e492",
+                "url": "https://api.github.com/repos/react/react/git/trees/aeb7276356422147836dd917eb45b5b1bf46e492"
+            },
+            "url": "https://api.github.com/repos/react/react/git/commits/5123b063a7b3cd5c42ea2be2ccebe4e68d8b12e3",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqToHbCRC1aQ7uu5UhlAAAsNIQAAV8ENcTM7SPjN7TqbIdUZRW\nbys98DMNDfEJ0NXr+V3nyJuBvTCrB5oNDAmKbapo/Q+Ld/O8C5vy0hynHF1YbBW+\n5f56ymTY8Zgten/Od8XpB/Urr3fO/cZP4hSMFaJVIExbAK/XSSRc8IPbM2MzvACP\ni1fcpNpLRouYoSMTCLjOaYI8007J8sLPBiWlcFm6kNlJsD1/EXOqY1EPn7YDHACY\neTGr2by+MoC29j/cJHii4zLUpPxYI3jDqQseetUY4K4zkRbkF2gvm4dsyWv/TUnh\nYcxRaFyyMjy4gy+WQ4Jt8iPO9R8ao6WGJQk4u2LbuDBNmr+3v0NG4dl249LD4kQw\n0BhteDDets1159OBqjsp2Ef0srghRGrdTv8TAQTeyioiPH9E+R7eCRoaPFd0kOxV\nGQ5yFLtjr6XBWA9p9nfDuEeE1t4YXtRHYrA5hyK6lMyMz1bSxZDt6QQ5vS8+W2fr\nQ0U7gvUPfUPMwzRSpoI08X9LKckkleP+2rvLAtNTAnVu5D0cTfcJsF3BEUBNfXGV\nSQhLQpMwU9IXEkRJxWSyOIvfSgunBymvO6nYxtjumSrQLVkmDG6UqF129u9RGoI6\ncHYr/LRpAlYuYvB6bUKo85nNukYjI/kE9tlpUFJe+4I0SXoom6zmubb/RmsMLbXk\nvyJKI9GGULHyBRG78MWm\n=EWJ7\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree aeb7276356422147836dd917eb45b5b1bf46e492\nparent 4400d6c802df45407e7303a6f84a8dcfabde84ff\nauthor Sophie Alpert <git@sophiebits.com> 1783529947 -0700\ncommitter GitHub <noreply@github.com> 1783529947 -0700\n\n[Fast Refresh] Find and remount wrapper edits behind lazy() (#36965)\n\nTwo bugs:\n\n- Type changes to a lazy's inner component (e.g., adding a `memo`\n  comparison function) were missed by the refresh scan.\n- If a SimpleMemoComponent needs to be remounted, previously\n  resolveRemountTypeForHotReloading would return the inner function\n  and we would incorrectly recreate the fiber as a FunctionComponent.\n  Instead, we can just use elementType consistently now that the\n  beginWork functions consistently call resolveFamily on the wrapped\n  components.",
+                "verified_at": "2026-07-08T16:59:08Z"
+            }
+        },
+        "url": "https://api.github.com/repos/react/react/commits/5123b063a7b3cd5c42ea2be2ccebe4e68d8b12e3",
+        "html_url": "https://github.com/react/react/commit/5123b063a7b3cd5c42ea2be2ccebe4e68d8b12e3",
+        "comments_url": "https://api.github.com/repos/react/react/commits/5123b063a7b3cd5c42ea2be2ccebe4e68d8b12e3/comments",
+        "author": {
+            "login": "sophiebits",
+            "id": 6820,
+            "node_id": "MDQ6VXNlcjY4MjA=",
+            "avatar_url": "https://avatars.githubusercontent.com/u/6820?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sophiebits",
+            "html_url": "https://github.com/sophiebits",
+            "followers_url": "https://api.github.com/users/sophiebits/followers",
+            "following_url": "https://api.github.com/users/sophiebits/following{/other_user}",
+            "gists_url": "https://api.github.com/users/sophiebits/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/sophiebits/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/sophiebits/subscriptions",
+            "organizations_url": "https://api.github.com/users/sophiebits/orgs",
+            "repos_url": "https://api.github.com/users/sophiebits/repos",
+            "events_url": "https://api.github.com/users/sophiebits/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/sophiebits/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "4400d6c802df45407e7303a6f84a8dcfabde84ff",
+                "url": "https://api.github.com/repos/react/react/commits/4400d6c802df45407e7303a6f84a8dcfabde84ff",
+                "html_url": "https://github.com/react/react/commit/4400d6c802df45407e7303a6f84a8dcfabde84ff"
+            }
+        ]
+    },
+    {
+        "sha": "4400d6c802df45407e7303a6f84a8dcfabde84ff",
+        "node_id": "C_kwDOAJy2KtoAKDQ0MDBkNmM4MDJkZjQ1NDA3ZTczMDNhNmY4NGE4ZGNmYWJkZTg0ZmY",
+        "commit": {
+            "author": {
+                "name": "Sophie Alpert",
+                "email": "git@sophiebits.com",
+                "date": "2026-07-08T16:58:35Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-07-08T16:58:35Z"
+            },
+            "message": "[Fast Refresh] Make edits to a memo comparison function take effect (#36964)\n\nEditing the second argument of memo() previously never took effect\nuntil something else remounted the tree, for two separate reasons:\n\n- When adding a comparison function, we need to switch from\n  SimpleMemoComponent to MemoComponent so canPreserveStateBetween\n  should return false.\n- MemoComponent was missing from the hot reload type resolution in\n  createWorkInProgress, so existing fibers kept reading .compare from\n  the old memo object forever.\n\nNew behavior:\n\n- Adding or removing the comparison function remounts; we need to do\n  this when adding (SimpleMemoComponent doesn't support a comparison\n  function) so let's also do it when removing.\n- Editing the comparison function implementation applies in place\n  with state preserved\n\nThe TODO in isCompatibleFamilyForHotReloading is removed as that\nwasn't the right place to do this check.",
+            "tree": {
+                "sha": "676e16d841722c04f575e958a258f06787ca2d60",
+                "url": "https://api.github.com/repos/react/react/git/trees/676e16d841722c04f575e958a258f06787ca2d60"
+            },
+            "url": "https://api.github.com/repos/react/react/git/commits/4400d6c802df45407e7303a6f84a8dcfabde84ff",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqToG7CRC1aQ7uu5UhlAAAffIQAC7EQ4zo1O9iXSuB+DrD6GQO\nJBm9Z3f1pJU06N6Ty88QiuV+vOJszZU7ni4cibf7vqXGeSRijuJFefQz/IwXdSlo\nJnnJwzIjxmVtgReuOV8uRrQPMIE59Nwv/PA1JHmCNI2P9Jgrc48rCpSGokvxcbaO\nYmW4UxjRRaIVenebJljmxj4w/i4SuX+PGVRiPQnGW2rQ+hRGFg8hn5JXtWVCpjH1\nOJUPhW4kh8HoFeODoaY5giVodn7IfS4BVFuri6fpWd3ZwOwSE4gqjbSQW94d5h/7\ns0uNtemsJyjTVAQh96VdtApvFt3hwBFKh0B1hsXuu08lAxgyWPmGFLSYQIplhzaI\n/KfSH0mIJ60hQADQ+UB8pHWyx7olugakgll5FVxFFTy3yLFhjuYWLj47XR9JCwpr\nI6uuJubpniz75s0Zh0qAQ0/Bg24q5EHzRyq7lJJKna+YAk2008EXIWaFRUJCf+nh\nH8zANVrf2hPzmC85G7RuncNjULh4cw62+LgtMAVVbyk8J5ZXjySC3rzRdO5WtBUo\n9ixXqkwl6Mbz7tzz4uSLtWMPeMzQwpBe3ug+tyNfbEOGKIc/oAcsXWsWPjAXZrj/\nsWEBjGCRBoAmWm1oLm+iPm8kKBfJbCGf+Qh91kovhEx+x1KRUgfLHfgdFMu33qKk\nRktPQUopJ4r8mzVt6EuM\n=KMb+\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree 676e16d841722c04f575e958a258f06787ca2d60\nparent 3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88\nauthor Sophie Alpert <git@sophiebits.com> 1783529915 -0700\ncommitter GitHub <noreply@github.com> 1783529915 -0700\n\n[Fast Refresh] Make edits to a memo comparison function take effect (#36964)\n\nEditing the second argument of memo() previously never took effect\nuntil something else remounted the tree, for two separate reasons:\n\n- When adding a comparison function, we need to switch from\n  SimpleMemoComponent to MemoComponent so canPreserveStateBetween\n  should return false.\n- MemoComponent was missing from the hot reload type resolution in\n  createWorkInProgress, so existing fibers kept reading .compare from\n  the old memo object forever.\n\nNew behavior:\n\n- Adding or removing the comparison function remounts; we need to do\n  this when adding (SimpleMemoComponent doesn't support a comparison\n  function) so let's also do it when removing.\n- Editing the comparison function implementation applies in place\n  with state preserved\n\nThe TODO in isCompatibleFamilyForHotReloading is removed as that\nwasn't the right place to do this check.",
+                "verified_at": "2026-07-08T16:58:36Z"
+            }
+        },
+        "url": "https://api.github.com/repos/react/react/commits/4400d6c802df45407e7303a6f84a8dcfabde84ff",
+        "html_url": "https://github.com/react/react/commit/4400d6c802df45407e7303a6f84a8dcfabde84ff",
+        "comments_url": "https://api.github.com/repos/react/react/commits/4400d6c802df45407e7303a6f84a8dcfabde84ff/comments",
+        "author": {
+            "login": "sophiebits",
+            "id": 6820,
+            "node_id": "MDQ6VXNlcjY4MjA=",
+            "avatar_url": "https://avatars.githubusercontent.com/u/6820?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sophiebits",
+            "html_url": "https://github.com/sophiebits",
+            "followers_url": "https://api.github.com/users/sophiebits/followers",
+            "following_url": "https://api.github.com/users/sophiebits/following{/other_user}",
+            "gists_url": "https://api.github.com/users/sophiebits/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/sophiebits/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/sophiebits/subscriptions",
+            "organizations_url": "https://api.github.com/users/sophiebits/orgs",
+            "repos_url": "https://api.github.com/users/sophiebits/repos",
+            "events_url": "https://api.github.com/users/sophiebits/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/sophiebits/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+                "url": "https://api.github.com/repos/react/react/commits/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+                "html_url": "https://github.com/react/react/commit/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88"
+            }
+        ]
+    },
+    {
+        "sha": "3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+        "node_id": "C_kwDOAJy2KtoAKDNiOWI1OWY3Y2I0YWI5ZjAwYzg0ZDliOGNkZjJlNDVlYjRiYjRiODg",
+        "commit": {
+            "author": {
+                "name": "Sophie Alpert",
+                "email": "git@sophiebits.com",
+                "date": "2026-07-08T16:56:38Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-07-08T16:56:38Z"
+            },
+            "message": "[Fast Refresh] Derive the fiber tag from the resolved type when mounting (#36963)\n\nIf an edit changed the kind of the type (e.g. a plain function got\nwrapped in memo()), the fiber could get the old kind's tag with the\nnew kind's type, usually throwing an error.",
+            "tree": {
+                "sha": "d69ff62f75cd3c1920c084241085b3625d2f92c4",
+                "url": "https://api.github.com/repos/react/react/git/trees/d69ff62f75cd3c1920c084241085b3625d2f92c4"
+            },
+            "url": "https://api.github.com/repos/react/react/git/commits/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqToFGCRC1aQ7uu5UhlAAA43UQAHZqm82FtbqbBkyQIRQ8WrgK\nNif8xRELvGxfCZFSmTl0EauiVkAp0nFydU1iKhOTpdkZpdPPKZiyTvaehpJVE9Pb\nJG5FJQvij2nNTX+NiXSL69a6yvcvGVcNG0uOcCXPRzAWp3kN8WKckKVC5hda7vto\nlMYUAqnNSNAoizr45jiFZTnqsVcvTZCfzIKbpKRDhqIyiUL0xobHM3S9TUQDOgiE\nrUZE3YvqjVFq8uHzDj2pjLo106AW36w8QUaOhWAkwrrpek35LvNMAwIX58lgQS3K\nSJW15rNTbr0I6wqkKIyNxUjYXPlwrLYyZP4l4oI9DzaiKzY4EkSRySjFjgRonRuT\nDlRMTG261A71ACq4jM+Fz7lgRJsm3BBQ3LI5ITEl64j+B/qjsyEZ8HzDt//40iAo\nDeQCpO/57tS4NUvyUqI4ioaVwwC1wMfBpiCdmcbGq5lhKj+k+nAr1FuKh5eCRcnD\nF/9SQ9GSr05ob/tH4ThVhqsNyR8wEKBU/XTVp3ZXC1KNmfJ7fHWwJcSQPqzhY63T\n4HxeD8P6jM5ipzJ0HiWDH9bYtW22zS1InlaPECQtrTEYzQWuvuzKrANUs+f+A3X+\nxUkvLM/U4RRsmEfg8a8sAoSBxHLt9Zf0ubkn4UosuG9EJUmy9uVjQRp0gpi8q1pP\nToPOXOLr22jTLC++OUiu\n=FFYY\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree d69ff62f75cd3c1920c084241085b3625d2f92c4\nparent df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97\nauthor Sophie Alpert <git@sophiebits.com> 1783529798 -0700\ncommitter GitHub <noreply@github.com> 1783529798 -0700\n\n[Fast Refresh] Derive the fiber tag from the resolved type when mounting (#36963)\n\nIf an edit changed the kind of the type (e.g. a plain function got\nwrapped in memo()), the fiber could get the old kind's tag with the\nnew kind's type, usually throwing an error.",
+                "verified_at": "2026-07-08T16:56:39Z"
+            }
+        },
+        "url": "https://api.github.com/repos/react/react/commits/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+        "html_url": "https://github.com/react/react/commit/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88",
+        "comments_url": "https://api.github.com/repos/react/react/commits/3b9b59f7cb4ab9f00c84d9b8cdf2e45eb4bb4b88/comments",
+        "author": {
+            "login": "sophiebits",
+            "id": 6820,
+            "node_id": "MDQ6VXNlcjY4MjA=",
+            "avatar_url": "https://avatars.githubusercontent.com/u/6820?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sophiebits",
+            "html_url": "https://github.com/sophiebits",
+            "followers_url": "https://api.github.com/users/sophiebits/followers",
+            "following_url": "https://api.github.com/users/sophiebits/following{/other_user}",
+            "gists_url": "https://api.github.com/users/sophiebits/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/sophiebits/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/sophiebits/subscriptions",
+            "organizations_url": "https://api.github.com/users/sophiebits/orgs",
+            "repos_url": "https://api.github.com/users/sophiebits/repos",
+            "events_url": "https://api.github.com/users/sophiebits/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/sophiebits/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+                "url": "https://api.github.com/repos/react/react/commits/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+                "html_url": "https://github.com/react/react/commit/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97"
+            }
+        ]
+    },
+    {
+        "sha": "df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+        "node_id": "C_kwDOAJy2KtoAKGRmNGJkMWI0ZTk5MjY5YWM5ZjNjZTNhNDdlZjJlMjNmNzZmYjFiOTc",
+        "commit": {
+            "author": {
+                "name": "Sophie Alpert",
+                "email": "git@sophiebits.com",
+                "date": "2026-07-08T16:11:20Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-07-08T16:11:20Z"
+            },
+            "message": "[Fast Refresh] Unify hot reload type resolution (#36962)\n\nPreviously resolveForwardRefForHotReloading was treated as a special\ncase. It's simpler to move this logic to updateForwardRef which\nmirrors how updateMemoComponent and mountLazyComponent already are,\nand it allows us to unify to a single resolveTypeForHotReloading which\nwe'll use in the next commit.\n\nSince .type is no longer changing we need to set didReceiveUpdate\nmanually.\n\nThis behavior is already tested in \"can update forwardRef render\nfunction in isolation\".",
+            "tree": {
+                "sha": "e593326a7247bbc17acee22a13107f6d8f136b6a",
+                "url": "https://api.github.com/repos/react/react/git/trees/e593326a7247bbc17acee22a13107f6d8f136b6a"
+            },
+            "url": "https://api.github.com/repos/react/react/git/commits/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqTnaoCRC1aQ7uu5UhlAAAq6UQAE/dBFJcyGmkMim9B58EhIgi\ng6B1P1/HQJmAlh6LaN0ucA5WrO+mFbTioKqTCHorPoFhBqybPVSnZsGdNgzRhgOj\n7wHQ/ebFe4y5HnhSkjXXBRLqKabunxk41KhuEHAJT4w6lhcs0sW6RDeNFaTEF9xe\nlUlb8PPKssH70gzC0Dw/2p3oq+PH5rkfE0SvmsyWz70gIuYifnZDl3gGZG3W75df\n7veMlgMJs3YJ+Y8dWAG1mDWeCf7kKyG6SUkRTBKg6dIuyfqCVojXaYHszVwiSsRP\nv/KS/ae3IJKmErtWNZYaEhFMc1Wytt3zHZd7si5lWQKK14KOlQAeXqlxugC6+qlF\ng7hB8+CAREDfG8Qx1BOOy+hJ1FT8rUNlnHXDHRNcX4vDJX16V05Fk/QScLIU9/JM\nPZB4nmL46/A0kSHHciT8SJAQ3C9fuEayx+CQXI4c57QPoYL1P0YAqV4Jv1JEdz9I\nCqA9lDSSr62Trn40y5Ryaj0A5idfv6aLGEZjdRoS+LTWiWeKbbLD3MniqneeaPU1\nKy7/8p9eq1QK9FpYqo1ZYKXPueXlhpzylfsyTo+SvRq1oh/xEm1XjHvS1w0d6Con\nRzKFe50iLYdP/7eGnC8rI1B5Xu/md42T7OR8wMYGNm2+YYJMMavVdpxM1VMCdZ2Y\n/ZEHafCXSlPozWMmNFaU\n=K9E+\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree e593326a7247bbc17acee22a13107f6d8f136b6a\nparent e3e813d4d6cd61746676f207f0847c744fb3ad64\nauthor Sophie Alpert <git@sophiebits.com> 1783527080 -0700\ncommitter GitHub <noreply@github.com> 1783527080 -0700\n\n[Fast Refresh] Unify hot reload type resolution (#36962)\n\nPreviously resolveForwardRefForHotReloading was treated as a special\ncase. It's simpler to move this logic to updateForwardRef which\nmirrors how updateMemoComponent and mountLazyComponent already are,\nand it allows us to unify to a single resolveTypeForHotReloading which\nwe'll use in the next commit.\n\nSince .type is no longer changing we need to set didReceiveUpdate\nmanually.\n\nThis behavior is already tested in \"can update forwardRef render\nfunction in isolation\".",
+                "verified_at": "2026-07-08T16:11:21Z"
+            }
+        },
+        "url": "https://api.github.com/repos/react/react/commits/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+        "html_url": "https://github.com/react/react/commit/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97",
+        "comments_url": "https://api.github.com/repos/react/react/commits/df4bd1b4e99269ac9f3ce3a47ef2e23f76fb1b97/comments",
+        "author": {
+            "login": "sophiebits",
+            "id": 6820,
+            "node_id": "MDQ6VXNlcjY4MjA=",
+            "avatar_url": "https://avatars.githubusercontent.com/u/6820?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sophiebits",
+            "html_url": "https://github.com/sophiebits",
+            "followers_url": "https://api.github.com/users/sophiebits/followers",
+            "following_url": "https://api.github.com/users/sophiebits/following{/other_user}",
+            "gists_url": "https://api.github.com/users/sophiebits/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/sophiebits/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/sophiebits/subscriptions",
+            "organizations_url": "https://api.github.com/users/sophiebits/orgs",
+            "repos_url": "https://api.github.com/users/sophiebits/repos",
+            "events_url": "https://api.github.com/users/sophiebits/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/sophiebits/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "e3e813d4d6cd61746676f207f0847c744fb3ad64",
+                "url": "https://api.github.com/repos/react/react/commits/e3e813d4d6cd61746676f207f0847c744fb3ad64",
+                "html_url": "https://github.com/react/react/commit/e3e813d4d6cd61746676f207f0847c744fb3ad64"
+            }
+        ]
+    },
+    {
+        "sha": "e3e813d4d6cd61746676f207f0847c744fb3ad64",
+        "node_id": "C_kwDOAJy2KtoAKGUzZTgxM2Q0ZDZjZDYxNzQ2Njc2ZjIwN2YwODQ3Yzc0NGZiM2FkNjQ",
+        "commit": {
+            "author": {
+                "name": "dan",
+                "email": "dan.abramov@me.com",
+                "date": "2026-07-08T12:33:19Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-07-08T12:33:19Z"
+            },
+            "message": "[test] Fix Error Proxy stack assignment in Node.js 21+ (#36967)\n\nSame as #35227, but for `set`.\n\nV8's `stack` setter silently noops when `this` is a Proxy\n(nodejs/node#60862), so prodstack-stripping assignments like\n`error.stack = 'Error: ' + message` in `resolveErrorProd` were dropped\nand reads returned the real stack.\n\nThis caused `yarn test --prod` failures on Node 21+.\n\n## Test Plan\n\n`yarn test --prod` passes on both old and new Nodes.\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>",
+            "tree": {
+                "sha": "69b3ecbd663331076a120d5630680fffb6d9cd04",
+                "url": "https://api.github.com/repos/react/react/git/trees/69b3ecbd663331076a120d5630680fffb6d9cd04"
+            },
+            "url": "https://api.github.com/repos/react/react/git/commits/e3e813d4d6cd61746676f207f0847c744fb3ad64",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqTkOPCRC1aQ7uu5UhlAAAybwQABOi3fzHeXlNm6H6CQfcmjRT\naRdyjJhh/LUST1XAmQuylQEZbbrOPgtp6L4ftyh6gnOhau2Ioex1m9DnGAOjIfmk\n5yvo6HBwXS3A4ihnLt5J6FzomuQaqplDQaO++HtdGaqnBIOe2lLMyDJ4/Gd786CO\nkYsO3wmvO04vsA++uK6S+Twex6bTf0v9HHMhJFf3e1Cweme5AVTEGhtK7IxA8zWd\ngADpDnQvsbhzNckVKuzEiEwXCICknIAXRzKmtKkNd/7JYsU6PNQGfTsTR9zXWUc/\nnqlWxHD727kx875YGlaIa/oiV/yaL+5Xw8ASumQCBxsQ5uam4fnXv8qonHGRK1sK\nZM4wamLSzBm4T/GYCp/Z5B86XijvM8W8chQbzLZzTHw8ijmIs9YwS6Dc8xW3krwW\n4GtP4je/W2e1hpWns/XeNVOGs2o3DzJ8a4mpMMjxaADi/VYQsJbf/RcMJIyOR6Av\n8Fj0myiM6++TTdZrTSaKlZ2yMhgSq9zoGj642pGyOa0fayFiVB/4jWk7vVUt5mJk\nCRF50XSYKA196quf5ReFCXjOSrNI8Drv7tgB1JjfmhH8czdj4J2ZKgri1nJQ4dzH\nQpSP2RoH8x9M8CjoinaFXjNS66x9XKZB1ogs89mawdBll/av5B3HruRKQ7EnXQvz\nlBOnBlcUfqRlghvt0Ksw\n=DTFP\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree 69b3ecbd663331076a120d5630680fffb6d9cd04\nparent 994ebf9dce1708045d9570f2fab7702be4763f97\nauthor dan <dan.abramov@me.com> 1783513999 +0100\ncommitter GitHub <noreply@github.com> 1783513999 +0100\n\n[test] Fix Error Proxy stack assignment in Node.js 21+ (#36967)\n\nSame as #35227, but for `set`.\n\nV8's `stack` setter silently noops when `this` is a Proxy\n(nodejs/node#60862), so prodstack-stripping assignments like\n`error.stack = 'Error: ' + message` in `resolveErrorProd` were dropped\nand reads returned the real stack.\n\nThis caused `yarn test --prod` failures on Node 21+.\n\n## Test Plan\n\n`yarn test --prod` passes on both old and new Nodes.\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>",
+                "verified_at": "2026-07-08T12:33:20Z"
+            }
+        },
+        "url": "https://api.github.com/repos/react/react/commits/e3e813d4d6cd61746676f207f0847c744fb3ad64",
+        "html_url": "https://github.com/react/react/commit/e3e813d4d6cd61746676f207f0847c744fb3ad64",
+        "comments_url": "https://api.github.com/repos/react/react/commits/e3e813d4d6cd61746676f207f0847c744fb3ad64/comments",
+        "author": {
+            "login": "gaearon",
+            "id": 810438,
+            "node_id": "MDQ6VXNlcjgxMDQzOA==",
+            "avatar_url": "https://avatars.githubusercontent.com/u/810438?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/gaearon",
+            "html_url": "https://github.com/gaearon",
+            "followers_url": "https://api.github.com/users/gaearon/followers",
+            "following_url": "https://api.github.com/users/gaearon/following{/other_user}",
+            "gists_url": "https://api.github.com/users/gaearon/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/gaearon/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/gaearon/subscriptions",
+            "organizations_url": "https://api.github.com/users/gaearon/orgs",
+            "repos_url": "https://api.github.com/users/gaearon/repos",
+            "events_url": "https://api.github.com/users/gaearon/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/gaearon/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "994ebf9dce1708045d9570f2fab7702be4763f97",
+                "url": "https://api.github.com/repos/react/react/commits/994ebf9dce1708045d9570f2fab7702be4763f97",
+                "html_url": "https://github.com/react/react/commit/994ebf9dce1708045d9570f2fab7702be4763f97"
+            }
+        ]
+    }
+]

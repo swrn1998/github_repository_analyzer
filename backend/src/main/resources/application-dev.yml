@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    com.githubanalyzer: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG   # Log WebClient requests/responses
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+cache:
+  ttl-minutes: 1        # Shorter TTL in dev for faster testing
+  stale-ttl-minutes: 2
+
+springdoc:
+  swagger-ui:
+    enabled: true

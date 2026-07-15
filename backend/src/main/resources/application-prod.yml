@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    com.githubanalyzer: INFO
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info      # Restrict actuator exposure in prod
+
+springdoc:
+  swagger-ui:
+    enabled: false                # Disable Swagger UI in production
