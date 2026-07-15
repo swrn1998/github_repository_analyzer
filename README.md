@@ -575,3 +575,4 @@ npm test -- --watchAll=false --coverage
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
