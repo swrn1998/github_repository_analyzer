@@ -15,42 +15,26 @@ const ComparePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [ownerA, setOwnerA] = useState('');
-  const [repoNameA, setRepoNameA] = useState('');
-  const [ownerB, setOwnerB] = useState('');
-  const [repoNameB, setRepoNameB] = useState('');
+  // Store input values separately - don't auto-trigger
+  const [inputA, setInputA] = useState<{ owner: string; repo: string } | null>(null);
+  const [inputB, setInputB] = useState<{ owner: string; repo: string } | null>(null);
 
-  const handleRepoAInput = (owner: string, repo: string) => {
-    setOwnerA(owner);
-    setRepoNameA(repo);
-    
-    // Only trigger comparison if both repos are set
-    if (ownerB && repoNameB) {
-      handleCompare(owner, repo, ownerB, repoNameB);
+  const handleCompareClick = async () => {
+    if (!inputA || !inputB) {
+      setError('Please enter both repositories to compare');
+      return;
     }
-  };
 
-  const handleRepoBInput = (owner: string, repo: string) => {
-    setOwnerB(owner);
-    setRepoNameB(repo);
-    
-    // Only trigger comparison if both repos are set
-    if (ownerA && repoNameA) {
-      handleCompare(ownerA, repoNameA, owner, repo);
-    }
-  };
-
-  const handleCompare = async (oA: string, rA: string, oB: string, rB: string) => {
     setIsLoading(true);
     setError(null);
     setRepoA(null);
     setRepoB(null);
 
     try {
-      // Parallel API calls
+      // Parallel API calls with the exact stored values
       const [resultA, resultB] = await Promise.all([
-        analyzeRepo(oA, rA),
-        analyzeRepo(oB, rB),
+        analyzeRepo(inputA.owner, inputA.repo),
+        analyzeRepo(inputB.owner, inputB.repo),
       ]);
       setRepoA(resultA);
       setRepoB(resultB);
@@ -77,40 +61,73 @@ const ComparePage: React.FC = () => {
         Analyze two repositories side by side to compare health scores and metrics.
       </p>
 
-      {/* Two search bars */}
+      {/* Two search bars with separate keys to prevent state collision */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
             Repository A
           </label>
           <SearchBar
-            onAnalyze={handleRepoAInput}
+            key="search-bar-a"
+            onAnalyze={(owner, repo) => {
+              setInputA({ owner, repo });
+              setError(null);
+            }}
             isLoading={isLoading}
             placeholder="e.g. facebook/react"
+            buttonText="Set"
           />
+          {inputA && (
+            <div style={{ fontSize: '13px', color: '#059669', marginTop: '4px' }}>
+              ✓ {inputA.owner}/{inputA.repo}
+            </div>
+          )}
         </div>
         <div>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
             Repository B
           </label>
           <SearchBar
-            onAnalyze={handleRepoBInput}
+            key="search-bar-b"
+            onAnalyze={(owner, repo) => {
+              setInputB({ owner, repo });
+              setError(null);
+            }}
             isLoading={isLoading}
             placeholder="e.g. vuejs/vue"
+            buttonText="Set"
           />
+          {inputB && (
+            <div style={{ fontSize: '13px', color: '#059669', marginTop: '4px' }}>
+              ✓ {inputB.owner}/{inputB.repo}
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Compare button */}
+      <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+        <button
+          onClick={handleCompareClick}
+          disabled={isLoading || !inputA || !inputB}
+          style={{
+            padding: '12px 32px',
+            backgroundColor: isLoading || !inputA || !inputB ? '#9ca3af' : '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: isLoading || !inputA || !inputB ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            fontWeight: 600,
+          }}
+        >
+          {isLoading ? 'Comparing...' : 'Compare Repositories'}
+        </button>
       </div>
 
       {error && (
         <div role="alert" style={{ color: '#dc2626', padding: '12px', backgroundColor: '#fef2f2', borderRadius: '8px', marginBottom: '20px' }}>
           {error}
-        </div>
-      )}
-
-      {/* Info message when only one repo is entered */}
-      {((ownerA && repoNameA && !ownerB) || (ownerB && repoNameB && !ownerA)) && !isLoading && (
-        <div style={{ color: '#1e40af', padding: '12px', backgroundColor: '#dbeafe', borderRadius: '8px', marginBottom: '20px' }}>
-          ℹ️ Please enter the second repository to start comparison
         </div>
       )}
 

@@ -6,6 +6,7 @@ interface SearchBarProps {
   isLoading: boolean;
   placeholder?: string;
   initialValue?: string;
+  buttonText?: string;
 }
 
 /**
@@ -21,6 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   isLoading,
   placeholder = 'Enter owner/repo (e.g. facebook/react)',
   initialValue = '',
+  buttonText = 'Analyze',
 }) => {
   const [input, setInput] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +78,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {isLoading ? 'Analyzing...' : 'Analyze'}
+          {isLoading ? 'Loading...' : buttonText}
         </button>
       </div>
       {error && (
