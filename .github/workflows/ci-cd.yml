@@ -40,7 +40,10 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-api:latest
+          no-cache: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-api:latest
+            ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-api:${{ github.sha }}
 
       # ---------- Build & push FRONTEND image ----------
       - name: Build & push frontend
@@ -48,7 +51,10 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-ui:latest
+          no-cache: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-ui:latest
+            ${{ env.ACR_LOGIN_SERVER }}/gh-analyzer-ui:${{ github.sha }}
 
       # ---------- Deploy BACKEND ----------
       - name: Deploy backend web app
