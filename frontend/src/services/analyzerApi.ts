@@ -21,7 +21,7 @@ export const analyzeRepo = async (
   owner: string,
   repo: string
 ): Promise<AnalysisResponse> => {
-  const response = await httpClient.get<AnalysisResponse>('/api/analyze', {
+  const response = await httpClient.get<AnalysisResponse>('/analyze', {
     params: { owner, repo },
   });
   return response.data;
@@ -39,7 +39,7 @@ export const compareRepos = async (
   ownerA: string, repoA: string,
   ownerB: string, repoB: string
 ): Promise<ComparisonResponse> => {
-  const response = await httpClient.get<ComparisonResponse>('/api/compare', {
+  const response = await httpClient.get<ComparisonResponse>('/compare', {
     params: { ownerA, repoA, ownerB, repoB },
   });
   return response.data;
@@ -49,7 +49,7 @@ export const compareRepos = async (
  * Fetches current cache statistics.
  */
 export const getCacheStats = async () => {
-  const response = await httpClient.get('/api/cache/stats');
+  const response = await httpClient.get('/cache/stats');
   return response.data;
 };
 
@@ -57,12 +57,12 @@ export const getCacheStats = async () => {
  * Clears the entire server-side cache.
  */
 export const clearCache = async (): Promise<void> => {
-  await httpClient.delete('/api/cache');
+  await httpClient.delete('/cache');
 };
 
 /**
  * Evicts a specific repository from the cache.
  */
 export const evictFromCache = async (owner: string, repo: string): Promise<void> => {
-  await httpClient.delete(`/api/cache/${owner}/${repo}`);
+  await httpClient.delete(`/cache/${owner}/${repo}`);
 };
