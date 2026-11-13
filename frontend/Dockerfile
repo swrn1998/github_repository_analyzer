@@ -9,7 +9,7 @@ RUN npm ci --silent
 
 # Copy source and build
 COPY . .
-ARG REACT_APP_API_BASE_URL=/api
+ARG REACT_APP_API_BASE_URL=https://github-analyzer-api-niksoni.azurewebsites.net/api
 ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 RUN npm run build
 
