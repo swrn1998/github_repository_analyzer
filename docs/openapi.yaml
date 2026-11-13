@@ -1,0 +1,566 @@
+openapi: 3.0.3
+info:
+  title: GitHub Repository Analyzer API
+  description: |
+    Analyzes GitHub repositories and returns enriched metrics including
+    health scores, contributor activity, language distribution, and conditional alerts.
+    
+    ## Offline Mode
+    Set `X-Offline-Mode: true` header to receive cached or mock data without
+    calling GitHub API.
+    
+    ## Data Sources
+    Response includes a `source` field indicating data freshness:
+    - `LIVE` — freshly fetched from GitHub API
+    - `CACHE` — from in-memory cache (within TTL)
+    - `STALE` — expired cache entry (GitHub API was unavailable)
+    - `MOCK` — static demo data (offline mode, no cache)
+    
+    ## Authentication
+    The backend uses a GitHub Personal Access Token for API calls, but no authentication
+    is required for end users of this API.
+    
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+    url: https://github.com/your-org/github-repository-analyzer
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+  - url: https://github-analyzer-api-niksoni.azurewebsites.net
+    description: Production (Azure)
+
+tags:
+  - name: Analysis
+    description: Repository analysis and comparison operations
+  - name: Cache
+    description: Cache management operations
+  - name: Trends
+    description: Historical trends tracking
+  - name: System
+    description: Health and system information endpoints
+
+paths:
+
+  /api/analyze:
+    get:
+      tags: [Analysis]
+      summary: Analyze a GitHub repository
+      description: |
+        Fetches and enriches repository data from GitHub REST API.
+        Results are cached for 10 minutes (configurable).
+        
+        **Conditional Alerts:**
+        - No commits in 90 days → "Repository appears inactive"
+        - Open issues > 50 → "High issue backlog"
+        - No tests detected → "Testing infrastructure not found"
+        - Vulnerabilities found → "Security vulnerabilities detected"
+      operationId: analyzeRepository
+      parameters:
+        - name: owner
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9._-]{1,100}$'
+            example: facebook
+          description: GitHub username or organization
+        - name: repo
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9._-]{1,100}$'
+            example: react
+          description: GitHub repository name
+        - name: X-Offline-Mode
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: When true, returns cached or mock data without calling GitHub API
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+              examples:
+                liveData:
+                  summary: Live data from GitHub
+                  value:
+                    owner: facebook
+                    repo: react
+                    stats:
+                      stars: 220000
+                      forks: 45000
+                      watchers: 6700
+                      openIssues: 854
+                      defaultBranch: main
+                      description: The library for web and native user interfaces
+                      license: MIT
+                      createdAt: "2013-05-24T16:15:54Z"
+                      updatedAt: "2026-06-14T20:00:00Z"
+                      pushedAt: "2026-06-14T18:30:00Z"
+                    healthScore:
+                      score: 88
+                      grade: B
+                      breakdown:
+                        commitActivityScore: 25
+                        issueRatioScore: 18
+                        communityScore: 25
+                        documentationScore: 20
+                    alerts:
+                      - type: HIGH_ISSUE_BACKLOG
+                        message: "High issue backlog - Maintenance concern"
+                        severity: WARNING
+                    languages:
+                      primaryLanguage: JavaScript
+                      rawBytes:
+                        JavaScript: 825000000
+                        TypeScript: 123000000
+                        CSS: 52000000
+                      percentages:
+                        JavaScript: 82.5
+                        TypeScript: 12.3
+                        CSS: 5.2
+                    contributorActivity:
+                      totalContributors: 1623
+                      totalCommitsLast52Weeks: 892
+                      lastCommitDate: "2026-06-14T18:30:00Z"
+                      topContributors:
+                        - login: gaearon
+                          totalCommits: 2145
+                          weeksActive: 48
+                        - login: zpao
+                          totalCommits: 1876
+                          weeksActive: 52
+                    source: LIVE
+                    cachedAt: null
+                    _links:
+                      self:
+                        href: /api/analyze?owner=facebook&repo=react
+                      compare:
+                        href: /api/compare?ownerA=facebook&repoA=react
+                      github:
+                        href: https://github.com/facebook/react
+                      cache-stats:
+                        href: /api/cache/stats
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2026-06-14T20:00:00Z"
+                status: 400
+                code: INVALID_INPUT
+                message: "owner must not be blank"
+                path: /api/analyze
+        '404':
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2026-06-14T20:00:00Z"
+                status: 404
+                code: REPO_NOT_FOUND
+                message: "Repository 'facebook/nonexistent' not found on GitHub"
+                path: /api/analyze
+        '503':
+          description: GitHub API unavailable — returns stale or mock data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+              example:
+                source: STALE
+                cachedAt: "2026-06-14T18:00:00Z"
+
+  /api/compare:
+    get:
+      tags: [Analysis]
+      summary: Compare two GitHub repositories
+      description: |
+        Analyzes both repositories in parallel and returns a side-by-side comparison
+        with winner determination based on health scores.
+      operationId: compareRepositories
+      parameters:
+        - name: ownerA
+          in: query
+          required: true
+          schema:
+            type: string
+          example: facebook
+        - name: repoA
+          in: query
+          required: true
+          schema:
+            type: string
+          example: react
+        - name: ownerB
+          in: query
+          required: true
+          schema:
+            type: string
+          example: vuejs
+        - name: repoB
+          in: query
+          required: true
+          schema:
+            type: string
+          example: vue
+        - name: X-Offline-Mode
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonResponse'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cache/stats:
+    get:
+      tags: [Cache]
+      summary: Get cache statistics
+      description: Returns current cache statistics including hit rate and entry count
+      operationId: getCacheStats
+      responses:
+        '200':
+          description: Cache statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheStats'
+
+  /api/cache:
+    delete:
+      tags: [Cache]
+      summary: Clear entire cache
+      description: Removes all cached repository data
+      operationId: clearCache
+      responses:
+        '204':
+          description: Cache cleared successfully
+
+  /api/cache/{owner}/{repo}:
+    delete:
+      tags: [Cache]
+      summary: Evict specific repository from cache
+      description: Removes a single repository's cached data
+      operationId: evictFromCache
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Repository evicted from cache
+
+  /api/trends:
+    get:
+      tags: [Trends]
+      summary: Get trend snapshots for a repository
+      description: Returns historical snapshots for trend analysis
+      operationId: getTrends
+      parameters:
+        - name: owner
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trend data
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /actuator/health:
+    get:
+      tags: [System]
+      summary: Service health check
+      description: Returns service health status for monitoring
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+        '503':
+          description: Service degraded
+
+  /actuator/info:
+    get:
+      tags: [System]
+      summary: Service information
+      description: Returns application version and build info
+      operationId: getInfo
+      responses:
+        '200':
+          description: Service info
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+
+    AnalysisResponse:
+      type: object
+      required: [owner, repo, stats, healthScore, alerts, languages, contributorActivity, source]
+      properties:
+        owner:
+          type: string
+          description: GitHub repository owner
+        repo:
+          type: string
+          description: Repository name
+        stats:
+          $ref: '#/components/schemas/RepoStats'
+        healthScore:
+          $ref: '#/components/schemas/HealthScore'
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+        languages:
+          $ref: '#/components/schemas/LanguageDistribution'
+        contributorActivity:
+          $ref: '#/components/schemas/ContributorActivity'
+        source:
+          type: string
+          enum: [LIVE, CACHE, STALE, MOCK]
+          description: Data source indicator
+        cachedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when data was cached
+        _links:
+          type: object
+          description: HATEOAS links
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+
+    RepoStats:
+      type: object
+      properties:
+        stars:
+          type: integer
+          format: int64
+          description: Number of stargazers
+        forks:
+          type: integer
+          format: int64
+          description: Number of forks
+        watchers:
+          type: integer
+          format: int64
+          description: Number of watchers
+        openIssues:
+          type: integer
+          format: int64
+          description: Count of open issues
+        defaultBranch:
+          type: string
+          description: Default branch name
+        description:
+          type: string
+          nullable: true
+          description: Repository description
+        license:
+          type: string
+          nullable: true
+          description: License name
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        pushedAt:
+          type: string
+          format: date-time
+
+    HealthScore:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Composite health score
+        grade:
+          type: string
+          enum: [A, B, C, D, F]
+          description: Letter grade
+        breakdown:
+          $ref: '#/components/schemas/ScoreBreakdown'
+
+    ScoreBreakdown:
+      type: object
+      properties:
+        commitActivityScore:
+          type: integer
+          minimum: 0
+          maximum: 25
+        issueRatioScore:
+          type: integer
+          minimum: 0
+          maximum: 25
+        communityScore:
+          type: integer
+          minimum: 0
+          maximum: 25
+        documentationScore:
+          type: integer
+          minimum: 0
+          maximum: 25
+
+    Alert:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [INACTIVE_REPO, HIGH_ISSUE_BACKLOG, NO_TESTS, SECURITY_VULNERABILITIES]
+        message:
+          type: string
+        severity:
+          type: string
+          enum: [INFO, WARNING, CRITICAL]
+
+    LanguageDistribution:
+      type: object
+      properties:
+        primaryLanguage:
+          type: string
+        rawBytes:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+        percentages:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+
+    ContributorActivity:
+      type: object
+      properties:
+        totalContributors:
+          type: integer
+        totalCommitsLast52Weeks:
+          type: integer
+        lastCommitDate:
+          type: string
+          format: date-time
+        topContributors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContributorSummary'
+
+    ContributorSummary:
+      type: object
+      properties:
+        login:
+          type: string
+        totalCommits:
+          type: integer
+        weeksActive:
+          type: integer
+
+    ComparisonResponse:
+      type: object
+      properties:
+        repoA:
+          $ref: '#/components/schemas/AnalysisResponse'
+        repoB:
+          $ref: '#/components/schemas/AnalysisResponse'
+        winner:
+          type: string
+          description: "owner/repo of the healthier repository"
+        healthScoreDelta:
+          type: integer
+          description: Absolute difference between health scores
+        summary:
+          type: string
+
+    CacheStats:
+      type: object
+      properties:
+        totalEntries:
+          type: integer
+        hits:
+          type: integer
+        misses:
+          type: integer
+        staleHits:
+          type: integer
+        hitRate:
+          type: number
+          format: double
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        code:
+          type: string
+          example: REPO_NOT_FOUND
+        message:
+          type: string
+        path:
+          type: string
+
+    Link:
+      type: object
+      properties:
+        href:
+          type: string

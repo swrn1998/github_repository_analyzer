@@ -379,12 +379,21 @@ View current cache statistics.
 
 ---
 
-### Swagger UI
+### Swagger UI / OpenAPI Documentation
 
 Full interactive API documentation available at:
-```
-http://localhost:8080/swagger-ui.html
-```
+
+**Local:**
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+**Production:**
+- Swagger UI: `https://github-analyzer-api-niksoni.azurewebsites.net/swagger-ui.html`
+- OpenAPI JSON: `https://github-analyzer-api-niksoni.azurewebsites.net/v3/api-docs`
+
+**Static Documentation:**
+- OpenAPI Spec: [`docs/openapi.yaml`](docs/openapi.yaml)
 
 ---
 

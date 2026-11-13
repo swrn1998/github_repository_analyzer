@@ -1,0 +1,196 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="SD-01: Analyze Repository - Happy Path" id="sequence-1">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <!-- Actors and Components -->
+        <mxCell id="user" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="30" height="60" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="ui" value="React UI" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="140" y="40" width="100" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="ctrl" value="AnalyzerController" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="120" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="cache" value="CacheService" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="100" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="ghclient" value="GitHubApiClient" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="580" y="40" width="120" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="github" value="GitHub API" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="740" y="40" width="100" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="score" value="HealthScoreCalculator" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="140" height="600" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="alert" value="AlertEngine" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="40" width="100" height="600" as="geometry"/>
+        </mxCell>
+        
+        <!-- Interactions -->
+        <mxCell id="msg1" value="Enter owner/repo" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="user" target="ui">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg2" value="POST /api/analyze" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ui" target="ctrl">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg3" value="get(owner/repo)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ctrl" target="cache">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg4" value="MISS" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="cache" target="ctrl">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg5" value="fetchRepoDetails()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ctrl" target="ghclient">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg6" value="GET /repos/{owner}/{repo}" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ghclient" target="github">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg7" value="RepoDetails JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="github" target="ghclient">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg8" value="RepoDetailsDTO" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="ghclient" target="ctrl">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg9" value="calculate(repo, commits)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ctrl" target="score">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg10" value="HealthScore (0-100)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="score" target="ctrl">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg11" value="evaluate(repo, commits)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ctrl" target="alert">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg12" value="List&lt;Alert&gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="alert" target="ctrl">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg13" value="put(key, response, TTL)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" source="ctrl" target="cache">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg14" value="AnalysisResponse (source=LIVE)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="ctrl" target="ui">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="msg15" value="Render Dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1" source="ui" target="user">
+          <mxGeometry width="80" relative="1" as="geometry"/>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+  
+  <diagram name="SD-02: Cache Hit" id="sequence-2">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <mxCell id="user2" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="30" height="60" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="ui2" value="React UI" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="140" y="40" width="100" height="400" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="ctrl2" value="AnalyzerController" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="120" height="400" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="cache2" value="CacheService" style="shape=umlLifeline;perimeter=lifelinePerimeter;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="100" height="400" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="note1" value="No GitHub API call made&#10;Return cached data immediately" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="200" width="200" height="80" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="m1" value="Enter owner/repo" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="70" y="120" as="sourcePoint"/>
+            <mxPoint x="190" y="120" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="m2" value="POST /api/analyze" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="190" y="150" as="sourcePoint"/>
+            <mxPoint x="340" y="150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="m3" value="get(owner/repo)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="340" y="180" as="sourcePoint"/>
+            <mxPoint x="490" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="m4" value="HIT - CachedResponse" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="490" y="210" as="sourcePoint"/>
+            <mxPoint x="340" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="m5" value="AnalysisResponse (source=CACHE)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="340" y="290" as="sourcePoint"/>
+            <mxPoint x="190" y="290" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="m6" value="Dashboard with Cached indicator" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="190" y="320" as="sourcePoint"/>
+            <mxPoint x="70" y="320" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+  
+  <diagram name="SD-03: API Failure - Stale Fallback" id="sequence-3">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <mxCell id="note-stale" value="Stale-while-revalidate strategy:&#10;Returns expired entry if exists" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="300" width="220" height="70" as="geometry"/>
+        </mxCell>
+        
+        <!-- This diagram follows same pattern but shows error handling -->
+        <mxCell id="title3" value="GitHub API Failure → Stale Cache Fallback" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="300" height="20" as="geometry"/>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
