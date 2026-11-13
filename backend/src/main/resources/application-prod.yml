@@ -19,4 +19,4 @@ management:
 
 springdoc:
   swagger-ui:
-    enabled: false                # Disable Swagger UI in production
+    enabled: true                 # Enable Swagger UI in production for API documentation access
