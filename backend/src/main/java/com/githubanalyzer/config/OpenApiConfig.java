@@ -41,27 +41,23 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title(appName + " API")
                         .version(appVersion)
-                        .description(appDescription + """
-                                
-                                ## Features
-                                - Repository statistics (stars, forks, watchers, issues)
-                                - Health score calculation (0-100 with A-F grade)
-                                - Contributor activity and commit patterns
-                                - Language distribution analysis
-                                - Conditional alerts (inactive repo, high issues, no tests, vulnerabilities)
-                                - Offline mode support via X-Offline-Mode header
-                                
-                                ## Data Sources
-                                Responses include a `source` field indicating data freshness:
-                                - `LIVE` — freshly fetched from GitHub API
-                                - `CACHE` — from in-memory cache (within TTL)
-                                - `STALE` — expired cache entry (GitHub API unavailable)
-                                - `MOCK` — static demo data (offline mode, no cache)
-                                
-                                ## Offline Mode
-                                Set the `X-Offline-Mode: true` request header to receive cached or mock data 
-                                without calling the GitHub API.
-                                """)
+                        .description(appDescription + "\n\n" +
+                                "## Features\n" +
+                                "- Repository statistics (stars, forks, watchers, issues)\n" +
+                                "- Health score calculation (0-100 with A-F grade)\n" +
+                                "- Contributor activity and commit patterns\n" +
+                                "- Language distribution analysis\n" +
+                                "- Conditional alerts (inactive repo, high issues, no tests, vulnerabilities)\n" +
+                                "- Offline mode support via X-Offline-Mode header\n\n" +
+                                "## Data Sources\n" +
+                                "Responses include a `source` field indicating data freshness:\n" +
+                                "- `LIVE` — freshly fetched from GitHub API\n" +
+                                "- `CACHE` — from in-memory cache (within TTL)\n" +
+                                "- `STALE` — expired cache entry (GitHub API unavailable)\n" +
+                                "- `MOCK` — static demo data (offline mode, no cache)\n\n" +
+                                "## Offline Mode\n" +
+                                "Set the `X-Offline-Mode: true` request header to receive cached or mock data " +
+                                "without calling the GitHub API.")
                         .contact(new Contact()
                                 .name("API Support")
                                 .email("support@example.com")
