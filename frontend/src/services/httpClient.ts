@@ -1,10 +1,11 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { ApiError } from '../types/analysis';
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
-
-// Debug: Log the BASE_URL in console (remove after verifying)
-console.log('[httpClient] BASE_URL configured as:', BASE_URL);
+const BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://github-analyzer-api-niksoni.azurewebsites.net/api'
+    : '/api');
 
 /**
  * Configured Axios instance for all API calls.
