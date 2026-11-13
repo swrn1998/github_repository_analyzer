@@ -12,7 +12,7 @@ pipeline {
     stage('Build Images') {
       steps {
         sh 'docker build -t $ACR_SERVER/gh-analyzer-api:$BUILD_NUMBER ./backend'
-        sh 'docker build -t $ACR_SERVER/gh-analyzer-ui:$BUILD_NUMBER ./frontend'
+        sh 'docker build --build-arg REACT_APP_API_BASE_URL=https://github-analyzer-api-niksoni.azurewebsites.net/api -t $ACR_SERVER/gh-analyzer-ui:$BUILD_NUMBER ./frontend'
       }
     }
 
