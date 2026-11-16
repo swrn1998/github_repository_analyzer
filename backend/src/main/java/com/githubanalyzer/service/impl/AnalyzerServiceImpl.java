@@ -7,6 +7,7 @@ import com.githubanalyzer.dto.internal.RepoData;
 import com.githubanalyzer.exception.GitHubApiException;
 import com.githubanalyzer.exception.RateLimitExceededException;
 import com.githubanalyzer.exception.RepoNotFoundException;
+import com.githubanalyzer.config.AppMetrics;
 import com.githubanalyzer.service.AnalyzerService;
 import com.githubanalyzer.service.TrendsService;
 import com.githubanalyzer.service.alert.AlertEngine;
@@ -24,6 +25,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import io.micrometer.core.instrument.Timer;
 
 /**
  * Core implementation of {@link AnalyzerService}.
@@ -57,6 +59,7 @@ public class AnalyzerServiceImpl implements AnalyzerService {
     private final LanguageDistributionEnricher languageEnricher;
     private final HateoasLinkEnricher hateoasEnricher;
     private final TrendsService trendsService;
+    private final AppMetrics appMetrics;
 
     public AnalyzerServiceImpl(
             GitHubApiClient githubClient,
@@ -66,7 +69,8 @@ public class AnalyzerServiceImpl implements AnalyzerService {
             MockDataProvider mockProvider,
             LanguageDistributionEnricher languageEnricher,
             HateoasLinkEnricher hateoasEnricher,
-            TrendsService trendsService) {
+            TrendsService trendsService,
+            AppMetrics appMetrics) {
         this.githubClient = githubClient;
         this.cacheService = cacheService;
         this.scoreCalculator = scoreCalculator;
@@ -75,6 +79,7 @@ public class AnalyzerServiceImpl implements AnalyzerService {
         this.languageEnricher = languageEnricher;
         this.hateoasEnricher = hateoasEnricher;
         this.trendsService = trendsService;
+        this.appMetrics = appMetrics;
     }
 
     // ── Public API ──────────────────────────────────────────────────────────
@@ -106,25 +111,35 @@ public class AnalyzerServiceImpl implements AnalyzerService {
         Optional<AnalysisResponse> cached = cacheService.get(cacheKey);
         if (cached.isPresent()) {
             log.info("Online + fresh cache hit for {} — returning cached data", request.getFullName());
+            appMetrics.recordCacheAnalysis();
             return withCacheMetadata(cached.get(), DataSource.CACHE, cached.get().getCachedAt());
         }
 
         // No fresh cache — fetch from GitHub API
         log.debug("Online + cache miss/expired for {} — fetching from GitHub API", request.getFullName());
         try {
-            return fetchAnalyzeAndCache(owner, repo, cacheKey);
+            AnalysisResponse response = appMetrics.getGitHubApiLatencyTimer()
+                    .recordCallable(() -> fetchAnalyzeAndCache(owner, repo, cacheKey));
+            appMetrics.recordGitHubApiSuccess();
+            appMetrics.recordLiveAnalysis();
+            recordAlertMetrics(response);
+            return response;
         } catch (RepoNotFoundException e) {
             // Invalid / non-existent repo while online — surface a clear 404 to the user.
+            appMetrics.recordGitHubApiFailure();
             throw e;
         } catch (RateLimitExceededException e) {
             log.warn("GitHub rate limit exceeded for {} — falling back to stale/mock", request.getFullName());
+            appMetrics.recordGitHubRateLimit();
             return getStaleFallback(owner, repo, cacheKey);
         } catch (GitHubApiException e) {
             log.warn("GitHub API failure for {}: {} — falling back to stale/mock",
                     request.getFullName(), e.getMessage());
+            appMetrics.recordGitHubApiFailure();
             return getStaleFallback(owner, repo, cacheKey);
         } catch (Exception e) {
             log.error("Unexpected error analyzing {}: {}", request.getFullName(), e.getMessage(), e);
+            appMetrics.recordGitHubApiFailure();
             return getStaleFallback(owner, repo, cacheKey);
         }
     }
@@ -132,6 +147,7 @@ public class AnalyzerServiceImpl implements AnalyzerService {
     @Override
     public ComparisonResponse compare(AnalysisRequest requestA, AnalysisRequest requestB) {
         log.info("Comparing {} vs {}", requestA.getFullName(), requestB.getFullName());
+        appMetrics.recordComparison();
 
         // Analyze both repos — each goes through the full degradation chain independently
         AnalysisResponse responseA = analyze(requestA);
@@ -288,11 +304,13 @@ public class AnalyzerServiceImpl implements AnalyzerService {
         Optional<AnalysisResponse> stale = cacheService.getStale(cacheKey);
         if (stale.isPresent()) {
             log.debug("Offline: returning stale cache for {}/{}", owner, repo);
+            appMetrics.recordStaleAnalysis();
             return withNotice(
                     withCacheMetadata(stale.get(), DataSource.STALE, stale.get().getCachedAt()),
                     "You are in offline mode. Showing previously cached data for this repository.");
         }
         log.debug("Offline: no cache for {}/{} — returning mock data", owner, repo);
+        appMetrics.recordMockAnalysis();
         return withNotice(
                 mockProvider.getMockData(owner, repo),
                 "No saved data for " + owner + "/" + repo
@@ -309,6 +327,7 @@ public class AnalyzerServiceImpl implements AnalyzerService {
         Optional<AnalysisResponse> stale = cacheService.getStale(cacheKey);
         if (stale.isPresent()) {
             log.info("API failure: returning STALE cache for {}/{}", owner, repo);
+            appMetrics.recordStaleAnalysis();
             return withNotice(
                     withCacheMetadata(stale.get(), DataSource.STALE, stale.get().getCachedAt()),
                     "GitHub is unreachable right now. Showing the last saved data for this repository (may be outdated).");
@@ -317,6 +336,24 @@ public class AnalyzerServiceImpl implements AnalyzerService {
         throw new GitHubApiException(
                 "GitHub is currently unreachable and no cached data exists for this repository.",
                 503, null);
+    }
+
+    /**
+     * Records alert-type metrics for every alert present in the response.
+     * Called after a successful live analysis so alert distribution is tracked in Grafana.
+     */
+    private void recordAlertMetrics(AnalysisResponse response) {
+        if (response.getAlerts() == null) return;
+        response.getAlerts().forEach(alert -> {
+            if (alert.getType() == null) return;
+            switch (alert.getType()) {
+                case INACTIVE_REPO          -> appMetrics.recordInactiveRepoAlert();
+                case HIGH_ISSUE_BACKLOG     -> appMetrics.recordHighIssueBacklogAlert();
+                case NO_TESTS              -> appMetrics.recordNoTestInfraAlert();
+                case SECURITY_VULNERABILITIES -> appMetrics.recordSecurityVulnAlert();
+                default -> log.debug("Untracked alert type: {}", alert.getType());
+            }
+        });
     }
 
     /**

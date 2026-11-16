@@ -15,7 +15,27 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info      # Restrict actuator exposure in prod
+        include: health,info,metrics,prometheus   # prometheus needed for Grafana Cloud push
+  metrics:
+    tags:
+      application: github-repository-analyzer
+      environment: prod
+    export:
+      prometheus:
+        enabled: true
+
+# ── Grafana Cloud Remote Write ────────────────────────────────────────────────
+# These values map to Azure App Service environment variables.
+# GRAFANA_REMOTE_WRITE_URL  → https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push
+# GRAFANA_INSTANCE_ID       → 3777300
+# GRAFANA_API_KEY           → <token from Grafana Cloud with MetricsPublisher role>
+grafana:
+  remote-write:
+    url: ${GRAFANA_REMOTE_WRITE_URL:}
+    username: ${GRAFANA_INSTANCE_ID:}
+    password: ${GRAFANA_API_KEY:}
+    enabled: ${GRAFANA_REMOTE_WRITE_ENABLED:false}
+    step-seconds: 60             # Push interval: every 60 seconds
 
 springdoc:
   swagger-ui:

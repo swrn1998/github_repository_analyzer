@@ -1,5 +1,6 @@
 package com.githubanalyzer.service.cache.impl;
 
+import com.githubanalyzer.config.AppMetrics;
 import com.githubanalyzer.domain.AnalysisResponse;
 import com.githubanalyzer.service.cache.CacheEntry;
 import com.githubanalyzer.service.cache.CacheService;
@@ -7,6 +8,7 @@ import com.githubanalyzer.service.cache.CacheStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -42,18 +44,22 @@ public class InMemoryCacheService implements CacheService {
     private final long staleTtlMillis;
     private final int maxEntries;
 
-    // ── Metrics counters ─────────────────────────────────────────────────────
+    // ── Internal counters (also exposed via CacheStats) ────────────────────────────
     private final AtomicLong hits = new AtomicLong(0);
     private final AtomicLong misses = new AtomicLong(0);
     private final AtomicLong staleHits = new AtomicLong(0);
 
+    private final AppMetrics appMetrics;
+
     public InMemoryCacheService(
             @Value("${cache.ttl-minutes:10}") int ttlMinutes,
             @Value("${cache.stale-ttl-minutes:60}") int staleTtlMinutes,
-            @Value("${cache.max-entries:500}") int maxEntries) {
+            @Value("${cache.max-entries:500}") int maxEntries,
+            @Lazy AppMetrics appMetrics) {
         this.ttlMillis = (long) ttlMinutes * 60 * 1000;
         this.staleTtlMillis = (long) staleTtlMinutes * 60 * 1000;
         this.maxEntries = maxEntries;
+        this.appMetrics = appMetrics;
         log.info("Cache initialized: TTL={}min, stale-TTL={}min, maxEntries={}",
                 ttlMinutes, staleTtlMinutes, maxEntries);
     }
@@ -66,6 +72,7 @@ public class InMemoryCacheService implements CacheService {
 
         if (entry == null) {
             misses.incrementAndGet();
+            appMetrics.recordCacheMiss();
             log.debug("Cache MISS for key: {}", key);
             return Optional.empty();
         }
@@ -73,11 +80,13 @@ public class InMemoryCacheService implements CacheService {
         if (entry.isExpired()) {
             entry.markStale();
             misses.incrementAndGet();
+            appMetrics.recordCacheMiss();
             log.debug("Cache EXPIRED for key: {} (created: {})", key, entry.getCreatedAt());
             return Optional.empty();
         }
 
         hits.incrementAndGet();
+        appMetrics.recordCacheHit();
         log.debug("Cache HIT for key: {}", key);
         return Optional.of(entry.getData());
     }
@@ -92,6 +101,7 @@ public class InMemoryCacheService implements CacheService {
         }
 
         staleHits.incrementAndGet();
+        appMetrics.recordCacheStaleHit();
         log.debug("Cache STALE HIT for key: {} (created: {})", key, entry.getCreatedAt());
         return Optional.of(entry.getData());
     }

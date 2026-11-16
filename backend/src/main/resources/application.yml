@@ -40,19 +40,25 @@ cache:
 trends:
   max-snapshots-per-repo: ${TRENDS_MAX_SNAPSHOTS:30}
 
-# ── Actuator ─────────────────────────────────────────────────────────────────
+# ── Actuator ────────────────────────────────────────────────────────────────────────────────────────
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus,loggers
       base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
+    prometheus:
+      enabled: true
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${SPRING_PROFILES_ACTIVE:local}
 
 info:
   app:
