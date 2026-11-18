@@ -67,12 +67,6 @@ public class MetricsConfig {
     @Value("${SPRING_PROFILES_ACTIVE:local}")
     private String activeProfile;
 
-    private final MeterRegistry meterRegistry;
-
-    public MetricsConfig(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-    }
-
     // ── Common Tags ──────────────────────────────────────────────────────────
 
     /**
