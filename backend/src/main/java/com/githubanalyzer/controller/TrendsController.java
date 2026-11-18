@@ -15,7 +15,7 @@ import java.util.Map;
  * <p>Provides endpoints to view repository metrics over time.
  */
 @RestController
-@RequestMapping("/api/trends")
+@RequestMapping({"/api/trends", "/api/api/trends"})
 @CrossOrigin(origins = "*")
 public class TrendsController {
 
