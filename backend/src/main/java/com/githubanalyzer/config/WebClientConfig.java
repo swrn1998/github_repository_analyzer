@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${github.api.connect-timeout-ms:3000}")
+    @Value("${github.api.connect-timeout-ms:5000}")
     private int connectTimeoutMs;
 
-    @Value("${github.api.read-timeout-ms:10000}")
+    @Value("${github.api.read-timeout-ms:60000}")
     private int readTimeoutMs;
 
     /**
