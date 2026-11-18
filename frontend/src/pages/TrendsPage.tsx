@@ -63,7 +63,7 @@ const TrendsPage: React.FC = () => {
     setError(null);
     
     try {
-      const response = await httpClient.get<TrendsResponse>('/api/trends', {
+      const response = await httpClient.get<TrendsResponse>('/trends', {
         params: { owner, repo }
       });
       setTrendsData(response.data);
