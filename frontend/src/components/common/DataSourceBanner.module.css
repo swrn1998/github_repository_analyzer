@@ -1,0 +1,42 @@
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.icon {
+  font-size: 15px;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.separator {
+  color: #9ca3af;
+}
+
+.description {
+  color: #374151;
+}
+
+.cacheTime {
+  color: #9ca3af;
+}
+
+.notice {
+  font-size: 13px;
+  color: #6b7280;
+}

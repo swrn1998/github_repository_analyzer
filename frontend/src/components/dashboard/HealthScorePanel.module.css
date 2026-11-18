@@ -1,0 +1,101 @@
+.panel {
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.gaugeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.gauge {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gaugeInner {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gaugeScore {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.gaugeMax {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.gradeBadge {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.radarWrapper {
+  flex: 1;
+  min-width: 220px;
+  height: 200px;
+}
+
+.breakdown {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.breakdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.breakdownLabel {
+  color: #4b5563;
+}
+
+.breakdownScore {
+  font-weight: 600;
+}
+
+.breakdownMax {
+  color: #9ca3af;
+  font-weight: 400;
+}

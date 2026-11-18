@@ -1,0 +1,25 @@
+.wrapper {
+  min-height: 100vh;
+  background-color: #f4f6f9;
+}
+
+.suspenseFallback {
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+}
+
+.notFound {
+  text-align: center;
+  padding: 80px;
+  color: #6b7280;
+}
+
+.notFoundCode {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+
+.notFoundText {
+  font-size: 18px;
+}
