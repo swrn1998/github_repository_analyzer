@@ -12,45 +12,35 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Thread-safe in-memory TTL cache backed by {@link ConcurrentHashMap}.
- *
- * <p><b>Degradation Strategy (Option A):</b>
- * <ol>
- *   <li>{@link #get}: Returns fresh data within TTL window</li>
- *   <li>{@link #getStale}: Returns expired data when live API fails</li>
- *   <li>If no stale data: caller falls back to MockDataProvider</li>
- * </ol>
- *
- * <p>A scheduled task runs every 5 minutes to evict entries that have
- * exceeded the stale TTL window (active TTL + stale grace period).
- *
- * <p>If the map exceeds {@code maxEntries}, the oldest 20% of entries
- * are evicted to prevent unbounded memory growth.
- *
- * <p>All counters use {@link AtomicLong} for lock-free concurrent updates.
- */
+// SOLID - Single Responsibility: manages only the in-memory TTL cache
+// SOLID - Open/Closed: implements CacheService interface - could swap to Redis without changing callers
 @Service
 public class InMemoryCacheService implements CacheService {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryCacheService.class);
 
+    // ConcurrentHashMap for thread safety - multiple request threads read/write simultaneously
     private final ConcurrentHashMap<String, CacheEntry> store = new ConcurrentHashMap<>();
     private final long ttlMillis;
     private final long staleTtlMillis;
     private final int maxEntries;
 
-    // ── Internal counters (also exposed via CacheStats) ────────────────────────────
+    // AtomicLong for thread-safe counter increments without synchronization overhead
     private final AtomicLong hits = new AtomicLong(0);
     private final AtomicLong misses = new AtomicLong(0);
     private final AtomicLong staleHits = new AtomicLong(0);
 
     private final AppMetrics appMetrics;
 
+    // 12-Factor III (Config): all cache settings come from environment variables with defaults
+    // e.g., CACHE_TTL_MINUTES=10 overrides the default without touching code
+    // @Lazy on AppMetrics breaks a circular dependency during Spring context startup
     public InMemoryCacheService(
             @Value("${cache.ttl-minutes:10}") int ttlMinutes,
             @Value("${cache.stale-ttl-minutes:60}") int staleTtlMinutes,
@@ -64,68 +54,52 @@ public class InMemoryCacheService implements CacheService {
                 ttlMinutes, staleTtlMinutes, maxEntries);
     }
 
-    // ── CacheService implementation ──────────────────────────────────────────
-
     @Override
     public Optional<AnalysisResponse> get(String key) {
         CacheEntry entry = store.get(key);
-
         if (entry == null) {
             misses.incrementAndGet();
             appMetrics.recordCacheMiss();
-            log.debug("Cache MISS for key: {}", key);
             return Optional.empty();
         }
-
         if (entry.isExpired()) {
+            // Mark stale but keep in store - getStale() can still serve it as fallback
             entry.markStale();
             misses.incrementAndGet();
             appMetrics.recordCacheMiss();
-            log.debug("Cache EXPIRED for key: {} (created: {})", key, entry.getCreatedAt());
             return Optional.empty();
         }
-
         hits.incrementAndGet();
         appMetrics.recordCacheHit();
-        log.debug("Cache HIT for key: {}", key);
         return Optional.of(entry.getData());
     }
 
     @Override
     public Optional<AnalysisResponse> getStale(String key) {
+        // Resilience (Option A) - stale-while-revalidate: serve old data rather than an error
         CacheEntry entry = store.get(key);
-
-        if (entry == null) {
-            log.debug("No stale entry found for key: {}", key);
-            return Optional.empty();
-        }
-
+        if (entry == null) return Optional.empty();
         staleHits.incrementAndGet();
         appMetrics.recordCacheStaleHit();
-        log.debug("Cache STALE HIT for key: {} (created: {})", key, entry.getCreatedAt());
         return Optional.of(entry.getData());
     }
 
     @Override
     public void put(String key, AnalysisResponse value) {
-        if (store.size() >= maxEntries) {
-            evictOldest();
-        }
+        if (store.size() >= maxEntries) evictOldest();
         store.put(key, new CacheEntry(value, ttlMillis));
-        log.debug("Cache PUT for key: {} (TTL: {}ms)", key, ttlMillis);
     }
 
     @Override
     public void evict(String key) {
         store.remove(key);
-        log.debug("Cache EVICT for key: {}", key);
     }
 
     @Override
     public void clear() {
         int size = store.size();
         store.clear();
-        log.info("Cache CLEARED: {} entries removed", size);
+        log.info("Cache cleared: {} entries removed", size);
     }
 
     @Override
@@ -133,46 +107,29 @@ public class InMemoryCacheService implements CacheService {
         return new CacheStats(store.size(), hits.get(), misses.get(), staleHits.get());
     }
 
-    // ── Scheduled eviction ───────────────────────────────────────────────────
-
-    /**
-     * Runs every 5 minutes to evict entries that have exceeded the stale window.
-     * Entries past (TTL + stale-TTL) are no longer useful and should be freed.
-     */
+    // @Scheduled requires @EnableScheduling in GithubAnalyzerApplication to work
+    // Runs every N minutes (configurable) to remove entries past their stale TTL window
+    // fixedRateString reads from property - if property is "5", the value becomes "5000" (ms)
     @Scheduled(fixedRateString = "${cache.eviction-scheduler-minutes:5}000")
     public void evictExpiredEntries() {
-        long staleCutoffMillis = staleTtlMillis;
         int[] evicted = {0};
-
         store.entrySet().removeIf(entry -> {
-            long ageMillis = java.time.Duration.between(
-                    entry.getValue().getCreatedAt(),
-                    java.time.Instant.now()
-            ).toMillis();
-
-            if (ageMillis > (ttlMillis + staleCutoffMillis)) {
+            long ageMillis = Duration.between(entry.getValue().getCreatedAt(), Instant.now()).toMillis();
+            if (ageMillis > (ttlMillis + staleTtlMillis)) {
                 evicted[0]++;
                 return true;
             }
             return false;
         });
-
         if (evicted[0] > 0) {
-            log.info("Cache eviction: removed {} expired entries. Current size: {}",
-                    evicted[0], store.size());
+            log.info("Cache eviction: removed {} expired entries. Current size: {}", evicted[0], store.size());
         }
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
-
-    /**
-     * Evicts the oldest 20% of entries when the cache is full.
-     * Uses creation time as the LRU approximation.
-     */
+    // Evicts oldest 20% of entries when cache is at capacity (memory pressure safeguard)
     private void evictOldest() {
         int toEvict = Math.max(1, maxEntries / 5);
         log.warn("Cache full ({}). Evicting {} oldest entries.", store.size(), toEvict);
-
         store.entrySet().stream()
                 .sorted(java.util.Comparator.comparing(e -> e.getValue().getCreatedAt()))
                 .limit(toEvict)

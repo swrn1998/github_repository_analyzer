@@ -10,33 +10,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * Computes the health score by aggregating the four {@link ScoreComponent} strategies.
- *
- * <p>This is the Facade over the individual scoring strategies. Each component
- * scores one dimension (max 25 pts each), and the sum becomes the total (max 100).
- *
- * <p>The four components are injected by Spring — this class has no knowledge
- * of their internal implementation. New components can be added without
- * modifying this class (Open/Closed Principle).
- *
- * <p>Component order for breakdown:
- * <ol>
- *   <li>Commit Activity       (0–25)</li>
- *   <li>Issue Ratio           (0–25)</li>
- *   <li>Community Engagement  (0–25)</li>
- *   <li>Documentation Quality (0–25)</li>
- * </ol>
- */
+// SOLID - Single Responsibility: aggregates four scoring dimensions into one final score
+// SOLID - Open/Closed: new score dimensions can be added without changing this class
+// Design pattern: Strategy - each ScoreComponent is an interchangeable scoring algorithm
 @Service
 public class WeightedHealthScoreCalculator implements HealthScoreCalculator {
 
     private static final Logger log = LoggerFactory.getLogger(WeightedHealthScoreCalculator.class);
 
-    private final CommitActivityScoreComponent commitActivityComponent;
-    private final IssueRatioScoreComponent issueRatioComponent;
-    private final CommunityEngagementScoreComponent communityComponent;
-    private final DocumentationQualityScoreComponent documentationComponent;
+    // SOLID - Dependency Inversion: depends on concrete components here (they are leaf classes)
+    // but the calculator itself is accessed via HealthScoreCalculator interface by its callers
+    private final CommitActivityScoreComponent commitActivityComponent;     // max 25 pts
+    private final IssueRatioScoreComponent issueRatioComponent;             // max 25 pts
+    private final CommunityEngagementScoreComponent communityComponent;     // max 25 pts
+    private final DocumentationQualityScoreComponent documentationComponent;// max 25 pts
     private final ScoreGradeMapper gradeMapper;
 
     public WeightedHealthScoreCalculator(
@@ -54,21 +41,17 @@ public class WeightedHealthScoreCalculator implements HealthScoreCalculator {
 
     @Override
     public HealthScore calculate(RepoData repoData) {
-        log.debug("Calculating health score for {}/{}", repoData.getOwner(), repoData.getRepo());
-
-        int commitScore   = commitActivityComponent.score(repoData);
-        int issueScore    = issueRatioComponent.score(repoData);
+        // Each component scores independently (0-25), total is 0-100
+        int commitScore    = commitActivityComponent.score(repoData);
+        int issueScore     = issueRatioComponent.score(repoData);
         int communityScore = communityComponent.score(repoData);
-        int docScore      = documentationComponent.score(repoData);
+        int docScore       = documentationComponent.score(repoData);
 
-        ScoreBreakdown breakdown = new ScoreBreakdown(
-                commitScore, issueScore, communityScore, docScore);
+        ScoreBreakdown breakdown = new ScoreBreakdown(commitScore, issueScore, communityScore, docScore);
+        int total = breakdown.getTotal();
+        String grade = gradeMapper.toGrade(total); // maps 0-100 score to A/B/C/D/F
 
-        int totalScore = breakdown.getTotal();
-        String grade = gradeMapper.toGrade(totalScore);
-
-        log.debug("Health score calculated: {} ({}) — breakdown: {}", totalScore, grade, breakdown);
-
-        return HealthScore.of(totalScore, grade, breakdown);
+        log.debug("Health score for {}/{}: {} ({})", repoData.getOwner(), repoData.getRepo(), total, grade);
+        return HealthScore.of(total, grade, breakdown);
     }
 }

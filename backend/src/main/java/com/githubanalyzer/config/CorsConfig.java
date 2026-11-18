@@ -5,15 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * CORS configuration to allow the React frontend to call the backend API.
- *
- * <p>In dev: allows localhost:3000 (React dev server).
- * In prod: should be restricted to the actual frontend domain.
- *
- * <p>Configured via {@code cors.allowed-origins} property so it can be
- * adjusted per environment without code changes (12-Factor config).
- */
+// SOLID - Single Responsibility: only configures CORS for the API
+// 12-Factor III (Config): allowed origins come from environment variable, not hardcoded
+// This means dev (localhost:3000) and prod (Azure) work with the same jar, different config
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
@@ -22,11 +16,11 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins.split(","))
+        registry.addMapping("/api/**")           // apply CORS only to API routes
+                .allowedOrigins(allowedOrigins.split(","))  // split CSV from config
                 .allowedMethods("GET", "POST", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .exposedHeaders("X-Cache-Status")
-                .maxAge(3600);
+                .exposedHeaders("X-Cache-Status") // browser can read this response header
+                .maxAge(3600);  // browser caches preflight response for 1 hour
     }
 }

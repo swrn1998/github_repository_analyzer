@@ -8,20 +8,13 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/**
- * Entry point for the GitHub Repository Analyzer microservice.
- *
- * <p>Architecture: Option A — Resilience & Offline Mode
- * <ul>
- *   <li>In-memory TTL cache with stale fallback</li>
- *   <li>Mock data provider for full offline operation</li>
- *   <li>Explicit degradation strategy: LIVE → CACHE → STALE → MOCK</li>
- * </ul>
- *
- * <p>Port: 8080 (configured in application.yml)
- */
+// @SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan combined
+// Auto-configures Spring beans, scans all @Component/@Service/@Repository in this package
 @SpringBootApplication
-@EnableScheduling   // Required for cache eviction scheduler
+
+// Enables @Scheduled methods across the app (used in InMemoryCacheService for TTL eviction)
+// Without this, @Scheduled annotations are silently ignored
+@EnableScheduling
 public class GithubAnalyzerApplication {
 
     private static final Logger log = LoggerFactory.getLogger(GithubAnalyzerApplication.class);
@@ -30,10 +23,8 @@ public class GithubAnalyzerApplication {
         SpringApplication.run(GithubAnalyzerApplication.class, args);
     }
 
-    /**
-     * Logs a startup summary once the application context is fully initialized.
-     * This runs after all beans are wired and ready — safe to log config state.
-     */
+    // Fires after all beans are wired and the app is fully ready to accept requests
+    // Safer than @PostConstruct which runs before the whole context is up
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         log.info("=======================================================");

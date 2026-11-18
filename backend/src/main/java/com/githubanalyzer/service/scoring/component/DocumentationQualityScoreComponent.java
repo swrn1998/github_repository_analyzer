@@ -5,59 +5,29 @@ import com.githubanalyzer.dto.internal.RepoData;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-/**
- * Scores the repository based on documentation and metadata quality.
- *
- * <p><b>Scoring Logic (max 25 points):</b>
- * <ul>
- *   <li>+7  Has a README file (README.md, README.rst, README.txt, etc.)</li>
- *   <li>+7  Has a LICENSE file</li>
- *   <li>+6  Has a non-empty description set on the repository</li>
- *   <li>+5  Has topics/tags set (indicates community discoverability)</li>
- * </ul>
- *
- * <p>Total maximum: 25 points.
- *
- * <p>README and LICENSE detection is based on root contents from
- * {@code GET /repos/{owner}/{repo}/contents}. Description and topics
- * are sourced from the main repo DTO.
- */
 @Component
 public class DocumentationQualityScoreComponent extends BaseScoreComponent {
 
     private static final int MAX_SCORE = 25;
 
-    private static final int README_POINTS = 7;
-    private static final int LICENSE_POINTS = 7;
-    private static final int DESCRIPTION_POINTS = 6;
-    private static final int TOPICS_POINTS = 5;
-
+    // README +7, LICENSE +7, description +6, topics +5
     @Override
     protected int computeRawScore(RepoData repoData) {
         int score = 0;
-
-        if (hasReadme(repoData)) score += README_POINTS;
-        if (hasLicense(repoData)) score += LICENSE_POINTS;
-        if (hasDescription(repoData)) score += DESCRIPTION_POINTS;
-        if (hasTopics(repoData)) score += TOPICS_POINTS;
-
+        if (hasReadme(repoData))       score += 7;
+        if (hasLicense(repoData))      score += 7;
+        if (hasDescription(repoData))  score += 6;
+        if (hasTopics(repoData))       score += 5;
         return score;
     }
 
     @Override
-    public int getMaxScore() {
-        return MAX_SCORE;
-    }
+    public int getMaxScore() { return MAX_SCORE; }
 
     @Override
-    public String getName() {
-        return "documentation";
-    }
-
-    // ── Private helpers ──────────────────────────────────────────────────────
+    public String getName() { return "documentation"; }
 
     private boolean hasReadme(RepoData repoData) {
-        // Check root contents for README variants
         return repoData.getRootContents().stream()
                 .map(GitHubContentDTO::getName)
                 .filter(name -> name != null)
@@ -65,11 +35,7 @@ public class DocumentationQualityScoreComponent extends BaseScoreComponent {
     }
 
     private boolean hasLicense(RepoData repoData) {
-        // Check via the license field on the repo DTO
-        if (StringUtils.hasText(repoData.getRepoDetails().getLicenseName())) {
-            return true;
-        }
-        // Also check root contents for a LICENSE file
+        if (StringUtils.hasText(repoData.getRepoDetails().getLicenseName())) return true;
         return repoData.getRootContents().stream()
                 .map(GitHubContentDTO::getName)
                 .filter(name -> name != null)

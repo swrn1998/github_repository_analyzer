@@ -11,17 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Evaluates all registered {@link AlertRule} implementations and
- * collects every alert that applies to the given repository data.
- *
- * <p>All rules are evaluated independently — multiple alerts can fire
- * for a single repository. Rules are injected by Spring as a list,
- * so adding a new {@code @Component AlertRule} automatically includes it.
- *
- * <p>Design: Chain of Responsibility variant where all applicable handlers
- * fire rather than the first match stopping the chain.
- */
+// SOLID - Open/Closed: new alert types can be added by creating a new AlertRule bean
+// without modifying this class at all
+// Design pattern: variant of Chain of Responsibility where ALL matching rules fire (not just first)
 @Service
 public class RuleBasedAlertEngine implements AlertEngine {
 
@@ -29,31 +21,20 @@ public class RuleBasedAlertEngine implements AlertEngine {
 
     private final List<AlertRule> rules;
 
-    /**
-     * Spring injects all {@code AlertRule} beans into this list.
-     * Order is determined by {@code @Order} annotations or Spring's default ordering.
-     */
+    // Spring automatically collects all @Component beans that implement AlertRule into this list
+    // Adding a new rule = create a new class + annotate it with @Component. Done.
     public RuleBasedAlertEngine(List<AlertRule> rules) {
         this.rules = rules;
-        log.info("AlertEngine initialized with {} rules: {}",
-                rules.size(),
+        log.info("AlertEngine loaded {} rules: {}", rules.size(),
                 rules.stream().map(r -> r.getClass().getSimpleName()).collect(Collectors.joining(", ")));
     }
 
     @Override
     public List<Alert> evaluate(RepoData repoData) {
-        log.debug("Evaluating {} alert rules for {}/{}", rules.size(), repoData.getOwner(), repoData.getRepo());
-
-        List<Alert> alerts = rules.stream()
-                .filter(rule -> {
-                    boolean applies = rule.applies(repoData);
-                    log.debug("Rule {} applies: {}", rule.getClass().getSimpleName(), applies);
-                    return applies;
-                })
+        // Each rule is evaluated independently - multiple alerts can fire for one repo
+        return rules.stream()
+                .filter(rule -> rule.applies(repoData))
                 .map(rule -> rule.generateAlert(repoData))
                 .collect(Collectors.toList());
-
-        log.debug("Alert evaluation complete: {} alert(s) raised", alerts.size());
-        return alerts;
     }
 }

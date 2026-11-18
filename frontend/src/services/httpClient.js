@@ -8,7 +8,7 @@ const BASE_URL =
 
 const httpClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 60000,
+  timeout: 120000, // 2 minutes — accounts for Azure cold start + parallel GitHub API calls
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -43,7 +43,7 @@ httpClient.interceptors.response.use(
       apiError.timestamp = data.timestamp || apiError.timestamp;
     } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
       apiError.code = 'TIMEOUT';
-      apiError.message = 'Request timed out. The API may be slow or unavailable.';
+      apiError.message = 'Request timed out. The server may be starting up — please try again in a moment.';
     } else if (!error.response) {
       apiError.code = 'NETWORK_ERROR';
       apiError.message = 'Cannot connect to the API. Check your network connection.';

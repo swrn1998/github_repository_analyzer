@@ -13,20 +13,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * In-memory implementation of {@link TrendsService}.
- *
- * <p>Stores trend snapshots in a ConcurrentHashMap with automatic eviction
- * based on max snapshots per repository. Thread-safe for concurrent access.
- */
+// SOLID - Single Responsibility: manages historical trend snapshots only
+// SOLID - Open/Closed: implements TrendsService interface - could swap to a DB-backed impl later
 @Service
 public class InMemoryTrendsService implements TrendsService {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryTrendsService.class);
 
-    // key: "owner:repo", value: list of snapshots (sorted by timestamp)
+    // ConcurrentHashMap keeps this thread-safe - multiple analyses can record snapshots concurrently
     private final Map<String, List<TrendSnapshot>> trendsStore = new ConcurrentHashMap<>();
 
+    // 12-Factor III (Config): max snapshots per repo comes from environment variable
+    // allows tuning memory usage without code changes
     @Value("${trends.max-snapshots-per-repo:30}")
     private int maxSnapshotsPerRepo;
 
@@ -46,19 +44,17 @@ public class InMemoryTrendsService implements TrendsService {
                 .primaryLanguage(analysis.getLanguages().getPrimaryLanguage())
                 .build();
 
+        // compute() is atomic - safe for concurrent updates on the same key
         trendsStore.compute(key, (k, existing) -> {
             List<TrendSnapshot> snapshots = existing != null ? new ArrayList<>(existing) : new ArrayList<>();
             snapshots.add(snapshot);
-
-            // Keep only the most recent snapshots
+            // Cap at maxSnapshotsPerRepo to prevent unbounded memory growth (12-Factor: stateless process)
             if (snapshots.size() > maxSnapshotsPerRepo) {
                 snapshots = snapshots.stream()
                         .sorted(Comparator.comparing(TrendSnapshot::getTimestamp).reversed())
                         .limit(maxSnapshotsPerRepo)
                         .collect(Collectors.toList());
             }
-
-            log.debug("Recorded trend snapshot for {}/{}: {} total snapshots", owner, repo, snapshots.size());
             return snapshots;
         });
     }
@@ -69,37 +65,30 @@ public class InMemoryTrendsService implements TrendsService {
         List<TrendSnapshot> snapshots = trendsStore.getOrDefault(key, Collections.emptyList());
 
         if (snapshots.isEmpty()) {
-            log.debug("No trend data found for {}/{}", owner, repo);
             return TrendsResponse.builder()
-                    .owner(owner)
-                    .repo(repo)
+                    .owner(owner).repo(repo)
                     .snapshots(Collections.emptyList())
                     .message("No historical data yet. Analyze this repository multiple times to build trend data.")
                     .build();
         }
 
-        // Sort by timestamp ascending for proper trend visualization
-        List<TrendSnapshot> sortedSnapshots = snapshots.stream()
+        // Sort ascending by timestamp so the chart renders left-to-right chronologically
+        List<TrendSnapshot> sorted = snapshots.stream()
                 .sorted(Comparator.comparing(TrendSnapshot::getTimestamp))
                 .collect(Collectors.toList());
 
-        TrendSummary summary = calculateSummary(sortedSnapshots);
-
-        log.info("Retrieved {} snapshots for {}/{}", sortedSnapshots.size(), owner, repo);
+        log.info("Retrieved {} trend snapshots for {}/{}", sorted.size(), owner, repo);
 
         return TrendsResponse.builder()
-                .owner(owner)
-                .repo(repo)
-                .snapshots(sortedSnapshots)
-                .summary(summary)
+                .owner(owner).repo(repo)
+                .snapshots(sorted)
+                .summary(calculateSummary(sorted))
                 .build();
     }
 
     @Override
     public int getTotalSnapshotCount() {
-        return trendsStore.values().stream()
-                .mapToInt(List::size)
-                .sum();
+        return trendsStore.values().stream().mapToInt(List::size).sum();
     }
 
     @Override
@@ -109,21 +98,18 @@ public class InMemoryTrendsService implements TrendsService {
         log.info("Cleared all trend data: {} snapshots removed", count);
     }
 
-    // ── Private Helpers ─────────────────────────────────────────────────────
-
+    // key is lowercase "owner:repo" - consistent with how InMemoryCacheService keys work
     private String buildKey(String owner, String repo) {
         return owner.toLowerCase() + ":" + repo.toLowerCase();
     }
 
     private TrendSummary calculateSummary(List<TrendSnapshot> snapshots) {
         if (snapshots.size() < 2) {
+            // Not enough data points to compute a meaningful trend
             return TrendSummary.builder()
-                    .healthScoreChange(0)
-                    .healthScoreTrend("INSUFFICIENT_DATA")
-                    .starsGrowth(0)
-                    .starsGrowthRate("N/A")
-                    .snapshotCount(snapshots.size())
-                    .daysTracked(0)
+                    .healthScoreChange(0).healthScoreTrend("INSUFFICIENT_DATA")
+                    .starsGrowth(0).starsGrowthRate("N/A")
+                    .snapshotCount(snapshots.size()).daysTracked(0)
                     .build();
         }
 
@@ -131,23 +117,21 @@ public class InMemoryTrendsService implements TrendsService {
         TrendSnapshot newest = snapshots.get(snapshots.size() - 1);
 
         int healthScoreChange = newest.getHealthScore() - oldest.getHealthScore();
-        String healthScoreTrend = determineHealthTrend(healthScoreChange);
-
         long starsGrowth = newest.getStars() - oldest.getStars();
         long daysBetween = Duration.between(oldest.getTimestamp(), newest.getTimestamp()).toDays();
-        String starsGrowthRate = calculateGrowthRate(oldest.getStars(), newest.getStars(), daysBetween);
 
         return TrendSummary.builder()
                 .healthScoreChange(healthScoreChange)
-                .healthScoreTrend(healthScoreTrend)
+                .healthScoreTrend(determineHealthTrend(healthScoreChange))
                 .starsGrowth(starsGrowth)
-                .starsGrowthRate(starsGrowthRate)
+                .starsGrowthRate(calculateGrowthRate(oldest.getStars(), newest.getStars(), daysBetween))
                 .snapshotCount(snapshots.size())
                 .daysTracked((int) daysBetween)
                 .build();
     }
 
     private String determineHealthTrend(int change) {
+        // ±5 buffer avoids flipping between IMPROVING/DECLINING on tiny fluctuations
         if (change > 5) return "IMPROVING";
         if (change < -5) return "DECLINING";
         return "STABLE";
@@ -155,10 +139,7 @@ public class InMemoryTrendsService implements TrendsService {
 
     private String calculateGrowthRate(long oldValue, long newValue, long days) {
         if (oldValue == 0 || days == 0) return "N/A";
-        
-        double percentChange = ((double) (newValue - oldValue) / oldValue) * 100;
-        String sign = percentChange >= 0 ? "+" : "";
-        
-        return String.format("%s%.1f%% (%d days)", sign, percentChange, days);
+        double pct = ((double) (newValue - oldValue) / oldValue) * 100;
+        return String.format("%s%.1f%% (%d days)", pct >= 0 ? "+" : "", pct, days);
     }
 }

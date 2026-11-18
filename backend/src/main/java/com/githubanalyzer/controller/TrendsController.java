@@ -9,67 +9,42 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * REST controller for historical trend data.
- *
- * <p>Provides endpoints to view repository metrics over time.
- */
+// SOLID - Single Responsibility: handles only trend data HTTP endpoints
 @RestController
+// Two mappings handle the case where nginx or the frontend accidentally double-prefixes /api
 @RequestMapping({"/api/trends", "/api/api/trends"})
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")  // allows the React frontend to call this from a different domain
 public class TrendsController {
 
     private static final Logger log = LoggerFactory.getLogger(TrendsController.class);
 
+    // SOLID - Dependency Inversion: depends on TrendsService interface
     private final TrendsService trendsService;
 
     public TrendsController(TrendsService trendsService) {
         this.trendsService = trendsService;
     }
 
-    /**
-     * Get historical trend data for a repository.
-     *
-     * @param owner repository owner
-     * @param repo repository name
-     * @return trend snapshots and summary
-     */
     @GetMapping
     public ResponseEntity<TrendsResponse> getTrends(
             @RequestParam String owner,
             @RequestParam String repo) {
-        
         log.info("GET /api/trends?owner={}&repo={}", owner, repo);
-        
-        TrendsResponse response = trendsService.getTrends(owner, repo);
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(trendsService.getTrends(owner, repo));
     }
 
-    /**
-     * Get total snapshot count across all repositories (diagnostic endpoint).
-     */
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
-        int totalSnapshots = trendsService.getTotalSnapshotCount();
-        
         return ResponseEntity.ok(Map.of(
-                "totalSnapshots", totalSnapshots,
+                "totalSnapshots", trendsService.getTotalSnapshotCount(),
                 "message", "Total trend snapshots stored in memory"
         ));
     }
 
-    /**
-     * Clear all trend data (admin/testing endpoint).
-     */
     @DeleteMapping
     public ResponseEntity<Map<String, String>> clearAll() {
         log.warn("DELETE /api/trends - Clearing all trend data");
-        
         trendsService.clearAll();
-        
-        return ResponseEntity.ok(Map.of(
-                "message", "All trend data cleared successfully"
-        ));
+        return ResponseEntity.ok(Map.of("message", "All trend data cleared successfully"));
     }
 }

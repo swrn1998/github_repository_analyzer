@@ -17,25 +17,10 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Centralized exception handler for all REST controllers.
- *
- * <p>Maps domain exceptions to appropriate HTTP status codes and
- * structured error response bodies. Ensures no internal exception
- * details leak to API consumers in production.
- *
- * <p>All handlers log the error at an appropriate level:
- * <ul>
- *   <li>4xx errors: WARN (expected client errors)</li>
- *   <li>5xx errors: ERROR (unexpected server errors)</li>
- * </ul>
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    // ── Domain exceptions ────────────────────────────────────────────────────
 
     @ExceptionHandler(RepoNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleRepoNotFound(
@@ -60,16 +45,13 @@ public class GlobalExceptionHandler {
                 "GitHub is currently unavailable. Please try again later.", request.getRequestURI());
     }
 
-    // ── Validation exceptions ────────────────────────────────────────────────
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(
             ConstraintViolationException ex, HttpServletRequest request) {
         log.warn("Validation failed: {}", ex.getMessage());
         String message = ex.getConstraintViolations().stream()
                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                .findFirst()
-                .orElse("Validation failed");
+                .findFirst().orElse("Validation failed");
         return buildError(HttpStatus.BAD_REQUEST, "INVALID_INPUT", message, request.getRequestURI());
     }
 
@@ -81,17 +63,12 @@ public class GlobalExceptionHandler {
                 "Required parameter '" + ex.getParameterName() + "' is missing", request.getRequestURI());
     }
 
-    // ── Catch-all ────────────────────────────────────────────────────────────
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(
-            Exception ex, HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex, HttpServletRequest request) {
         log.error("Unexpected error at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
                 "An unexpected error occurred. Please try again.", request.getRequestURI());
     }
-
-    // ── Helper ───────────────────────────────────────────────────────────────
 
     private ResponseEntity<Map<String, Object>> buildError(
             HttpStatus status, String code, String message, String path) {
